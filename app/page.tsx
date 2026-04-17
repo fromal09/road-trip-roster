@@ -38,7 +38,6 @@ export default function HomePage() {
 
   // Revealed up to: how many stops have been shown so far
   // -1 = nothing, 0 = first stop visible, etc.
-  const revealedUpTo = currentLeg  // currentLeg tracks the leg being animated; stops revealed = currentLeg
 
   const legTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
@@ -270,9 +269,10 @@ export default function HomePage() {
           {/* Stop list */}
           <StopList
             player={currentPlayer}
-            revealedUpTo={revealedUpTo}
-            difficulty={difficulty}
+            currentLeg={currentLeg}
             journeyStarted={journeyStarted}
+            journeyComplete={journeyStarted && currentLeg === -1}
+            difficulty={difficulty}
           />
 
           {/* Control area */}

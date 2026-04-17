@@ -323,31 +323,35 @@ function CityMarker({
           <animate attributeName="opacity" values="0.8;0.1;0.8" dur="1.5s" repeatCount="indefinite" />
         </circle>
       )}
-      <circle r={r} fill={fill} stroke="white" strokeWidth={2.5} />
-      <text
-        textAnchor="middle"
-        dominantBaseline="middle"
-        fontSize={isCollege ? 10 : 9}
-        fontWeight="700"
-        fill="white"
-        style={{ fontFamily: 'var(--font-mono)', userSelect: 'none', pointerEvents: 'none' }}
-      >
-        {isCollege ? '🎓' : String(index + 1)}
-      </text>
+      {/* Dot always visible — gives route shape without spoiling stops */}
+      <circle r={r} fill={showLabel ? fill : '#B0A898'} stroke="white" strokeWidth={2.5} />
+      {/* Number + label only revealed on arrival */}
       {showLabel && (
-        <text
-          y={-(r + 7)}
-          textAnchor="middle"
-          fontSize={10}
-          fontWeight={600}
-          fill="#1C2B4A"
-          stroke="white"
-          strokeWidth={3}
-          paintOrder="stroke"
-          style={{ fontFamily: 'var(--font-sans)', userSelect: 'none', pointerEvents: 'none' }}
-        >
-          {label}
-        </text>
+        <>
+          <text
+            textAnchor="middle"
+            dominantBaseline="middle"
+            fontSize={isCollege ? 10 : 9}
+            fontWeight="700"
+            fill="white"
+            style={{ fontFamily: 'var(--font-mono)', userSelect: 'none', pointerEvents: 'none' }}
+          >
+            {isCollege ? '🎓' : String(index + 1)}
+          </text>
+          <text
+            y={-(r + 7)}
+            textAnchor="middle"
+            fontSize={10}
+            fontWeight={600}
+            fill="#1C2B4A"
+            stroke="white"
+            strokeWidth={3}
+            paintOrder="stroke"
+            style={{ fontFamily: 'var(--font-sans)', userSelect: 'none', pointerEvents: 'none' }}
+          >
+            {label}
+          </text>
+        </>
       )}
     </g>
   )
