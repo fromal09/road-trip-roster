@@ -46,11 +46,11 @@ export default function GameMap({
 }: GameMapProps) {
   // Project current player stops
   type ExtStop = ProjectedStop & { rawYears: [number, number] }
-  const stops: ExtStop[] = getPlayerStops(player)
+  const stops = getPlayerStops(player)
     .map((s) => {
       const pos = project(s.coords)
       if (!pos) return null
-      return {
+      const stop: ExtStop = {
         teamName: s.teamName,
         city: s.city,
         x: pos.x,
@@ -59,6 +59,7 @@ export default function GameMap({
         isCollege: s.isCollege,
         rawYears: s.years,
       }
+      return stop
     })
     .filter((s): s is ExtStop => s !== null)
 
