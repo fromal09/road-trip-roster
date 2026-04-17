@@ -87,6 +87,9 @@ export default function GameMap({
     }))
   })
 
+  // journeyComplete: journey has been fully animated (currentLeg resets to -1 after last leg)
+  const journeyComplete = journeyStarted && currentLeg === -1
+
   return (
     <div
       className="map-container w-full bg-map-water rounded-xl overflow-hidden border-2 border-map-border shadow-inner"
@@ -129,7 +132,7 @@ export default function GameMap({
           />
         ))}
 
-        {/* Dashed track lines (shows all routes once journey starts) */}
+        {/* Dashed track lines (shows full route once journey starts) */}
         {journeyStarted && legs.map((leg, i) => (
           <path
             key={`track-${i}`}
@@ -142,7 +145,7 @@ export default function GameMap({
           />
         ))}
 
-        {/* Animated journey legs */}
+        {/* Animated journey legs — journeyComplete keeps lines visible after currentLeg resets */}
         {legs.map((leg, i) => (
           <AnimatedLeg
             key={`${player.id}-leg-${i}`}
@@ -153,11 +156,12 @@ export default function GameMap({
             durationMs={leg.durationMs}
             currentLeg={currentLeg}
             journeyStarted={journeyStarted}
+            journeyComplete={journeyComplete}
             onComplete={() => onLegComplete(i)}
           />
         ))}
 
-        {/* City markers — always on top */}
+        {/* City markers — labels reveal progressively as vehicle arrives */}
         {stops.map((stop, i) => (
           <CityMarker
             key={`${player.id}-marker-${i}`}
@@ -167,6 +171,8 @@ export default function GameMap({
             city={stop.city}
             isCollege={stop.isCollege}
             isActive={journeyStarted && currentLeg === i - 1}
+            // Label visible: starting stop shows immediately, others reveal on arrival
+            showLabel={journeyComplete || (journeyStarted && currentLeg >= i)}
           />
         ))}
       </ComposableMap>
@@ -184,12 +190,13 @@ interface AnimatedLegProps {
   durationMs: number
   currentLeg: number
   journeyStarted: boolean
+  journeyComplete: boolean
   onComplete: () => void
 }
 
 function AnimatedLeg({
   legIndex, from, to, vehicle, durationMs,
-  currentLeg, journeyStarted, onComplete,
+  currentLeg, journeyStarted, journeyComplete, onComplete,
 }: AnimatedLegProps) {
   const measRef = useRef<SVGPathElement>(null)
   const [pathLength, setPathLength] = useState(2000)
@@ -201,7 +208,8 @@ function AnimatedLeg({
   const [vehicleMoving, setVehicleMoving] = useState(false)
 
   const isActive = journeyStarted && currentLeg === legIndex
-  const isComplete = journeyStarted && currentLeg > legIndex
+  // isComplete: this leg is done. Also true when journeyComplete (currentLeg reset to -1)
+  const isComplete = journeyComplete || (journeyStarted && currentLeg > legIndex)
   const durationS = durationMs / 1000
   const pathD = buildPathD(from.x, from.y, to.x, to.y, vehicle)
 
@@ -298,10 +306,10 @@ function AnimatedLeg({
 // ─── CityMarker ───────────────────────────────────────────────
 
 function CityMarker({
-  x, y, index, city, isCollege, isActive,
+  x, y, index, city, isCollege, isActive, showLabel,
 }: {
   x: number; y: number; index: number
-  city: string; isCollege?: boolean; isActive: boolean
+  city: string; isCollege?: boolean; isActive: boolean; showLabel: boolean
 }) {
   const label = city.split(',')[0]
   const fill = isCollege ? '#2A7A4B' : '#D4621A'
@@ -326,19 +334,21 @@ function CityMarker({
       >
         {isCollege ? '🎓' : String(index + 1)}
       </text>
-      <text
-        y={-(r + 7)}
-        textAnchor="middle"
-        fontSize={10}
-        fontWeight={600}
-        fill="#1C2B4A"
-        stroke="white"
-        strokeWidth={3}
-        paintOrder="stroke"
-        style={{ fontFamily: 'var(--font-sans)', userSelect: 'none', pointerEvents: 'none' }}
-      >
-        {label}
-      </text>
+      {showLabel && (
+        <text
+          y={-(r + 7)}
+          textAnchor="middle"
+          fontSize={10}
+          fontWeight={600}
+          fill="#1C2B4A"
+          stroke="white"
+          strokeWidth={3}
+          paintOrder="stroke"
+          style={{ fontFamily: 'var(--font-sans)', userSelect: 'none', pointerEvents: 'none' }}
+        >
+          {label}
+        </text>
+      )}
     </g>
   )
 }
