@@ -1,0 +1,59 @@
+@import url('https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Karla:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-slab: 'Alfa Slab One';
+  --font-sans: 'Karla';
+  --font-mono: 'JetBrains Mono';
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background-color: #F5EFE0;
+  color: #2C2218;
+  font-family: var(--font-sans), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100dvh;
+}
+
+/* Map container */
+.map-container svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #F5EFE0; }
+::-webkit-scrollbar-thumb { background: #C0B09A; border-radius: 3px; }
+
+/* SVG text */
+.map-label {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Ghost path fade in */
+@keyframes ghostFade {
+  from { opacity: 0; }
+  to { opacity: 0.5; }
+}
+
+.ghost-path {
+  animation: ghostFade 0.6s ease forwards;
+}
+
+/* Marker pulse for current active stop */
+@keyframes markerPulse {
+  0%, 100% { r: 8; opacity: 1; }
+  50% { r: 12; opacity: 0.7; }
+}
