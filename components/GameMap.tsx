@@ -132,18 +132,7 @@ export default function GameMap({
           />
         ))}
 
-        {/* Dashed track lines (shows full route once journey starts) */}
-        {journeyStarted && legs.map((leg, i) => (
-          <path
-            key={`track-${i}`}
-            d={buildPathD(leg.from.x, leg.from.y, leg.to.x, leg.to.y, leg.vehicle)}
-            fill="none"
-            stroke="#C0B09A"
-            strokeWidth={1.5}
-            strokeDasharray="5 8"
-            strokeOpacity={0.6}
-          />
-        ))}
+        {/* No track lines shown until journey complete — don't spoil the route */}
 
         {/* Animated journey legs — journeyComplete keeps lines visible after currentLeg resets */}
         {legs.map((leg, i) => (
@@ -161,20 +150,23 @@ export default function GameMap({
           />
         ))}
 
-        {/* City markers — labels reveal progressively as vehicle arrives */}
-        {stops.map((stop, i) => (
-          <CityMarker
-            key={`${player.id}-marker-${i}`}
-            x={stop.x}
-            y={stop.y}
-            index={i}
-            city={stop.city}
-            isCollege={stop.isCollege}
-            isActive={journeyStarted && currentLeg === i - 1}
-            // Label visible: starting stop shows immediately, others reveal on arrival
-            showLabel={journeyComplete || (journeyStarted && currentLeg >= i)}
-          />
-        ))}
+        {/* City markers — only render once vehicle has arrived at that stop */}
+        {stops.map((stop, i) => {
+          const showLabel = journeyComplete || (journeyStarted && currentLeg >= i)
+          if (!showLabel) return null
+          return (
+            <CityMarker
+              key={`${player.id}-marker-${i}`}
+              x={stop.x}
+              y={stop.y}
+              index={i}
+              city={stop.city}
+              isCollege={stop.isCollege}
+              isActive={journeyStarted && currentLeg === i - 1}
+              showLabel={showLabel}
+            />
+          )
+        })}
       </ComposableMap>
     </div>
   )
@@ -323,8 +315,8 @@ function CityMarker({
           <animate attributeName="opacity" values="0.8;0.1;0.8" dur="1.5s" repeatCount="indefinite" />
         </circle>
       )}
-      {/* Dot always visible — gives route shape without spoiling stops */}
-      <circle r={r} fill={showLabel ? fill : '#B0A898'} stroke="white" strokeWidth={2.5} />
+      {/* Dot — always colored since we only render on arrival */}
+      <circle r={r} fill={fill} stroke="white" strokeWidth={2.5} />
       {/* Number + label only revealed on arrival */}
       {showLabel && (
         <>
